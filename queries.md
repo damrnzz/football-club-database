@@ -6,4 +6,4 @@
 
 ## Запрос 2: 
 ### Условие: Найти всех игроков с зарплатой больше 5 000 000, и вывести их фамилии. 
-### π Player.last_name σ ( Contract.salary > 5000000 ) (Player ⋈ player_id Contract)
+### π last_name σ ( salary > 5000000 ( Player ⋈ Player.player_id = Contract.player_id Contract))
