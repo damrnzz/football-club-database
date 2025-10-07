@@ -7,7 +7,8 @@
 ### Удаление: если удалить клуб, то теряется информация о городе.
 
 ## Решение:
-```sql CREATE TABLE football_club.cities (
+```sql 
+CREATE TABLE football_club.cities (
     city_id SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
     country VARCHAR(50) NOT NULL
