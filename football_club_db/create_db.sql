@@ -1,5 +1,11 @@
 CREATE SCHEMA football_club;
 
+CREATE TABLE football_club.cities (
+    city_id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    country VARCHAR(50) NOT NULL
+);
+
 CREATE TABLE football_club.owners(
     owner_id SERIAL PRIMARY KEY,
     name varchar(100) NOT NULL,
@@ -17,11 +23,11 @@ CREATE TABLE football_club.stadiums(
 CREATE TABLE football_club.football_clubs(
     club_id SERIAL PRIMARY KEY, 
     name varchar(100) NOT NULL,
-    country varchar(50) NOT NULL,
-    city varchar(50) NOT NULL,
+    city_id INT REFERENCES football_club.cities(city_id),
     owner_id INT REFERENCES football_club.owners(owner_id),
     staduim_id INT REFERENCES football_club.stadiums(staduim_id)
 );
+
 
 CREATE TABLE football_club.sponsors(
     sponsor_id SERIAL PRIMARY KEY,
@@ -84,10 +90,22 @@ CREATE TABLE football_club.players(
 CREATE TABLE football_club.contracts(
     contract_id SERIAL PRIMARY KEY,
     player_id INT REFERENCES football_club.players(player_id),
-    club_id INT REFERENCES football_club.football_clubs(club_id),
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
     salary MONEY NOT NULL
+);
+
+
+CREATE TABLE football_club.departments (
+    department_id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE football_club.positions (
+    position_id SERIAL PRIMARY KEY,
+    department_id INT REFERENCES football_club.departments(department_id),
+    title VARCHAR(100) NOT NULL,
+    base_salary MONEY NOT NULL
 );
 
 CREATE TABLE football_club.staff(
@@ -95,23 +113,6 @@ CREATE TABLE football_club.staff(
     first_name varchar(30) NOT NULL,
     date_of_birth DATE NOT NULL,
     salary MONEY NOT NULL,
+    position_id INT REFERENCES football_club.positions(position_id),
     club_id INT REFERENCES football_club.football_clubs(club_id)
 );
-
-CREATE TABLE football_club.medical_staff(
-    staff_id INT REFERENCES football_club.staff(staff_id),
-    specialization varchar(50) NOT NULL
-);
-
-CREATE TABLE football_club.coaching_staff(
-    staff_id INT REFERENCES football_club.staff(staff_id),
-    role varchar(50) NOT NULL,
-    license varchar(50) NOT NULL
-);
-
-CREATE TABLE football_club.administrative_staff(
-    staff_id INT REFERENCES football_club.staff(staff_id),
-    department varchar(50) NOT NULL,
-    job_title varchar(100) NOT NULL
-);
-
