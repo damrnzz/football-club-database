@@ -1,3 +1,11 @@
+SELECT * FROM football_club.players;
+
+SELECT * FROM football_club.football_clubs;
+
+SELECT first_name FROM football_club.players;
+
+SELECT capacity, name FROM football_club.stadiums;
+
 SELECT player_id, first_name
 FROM football_club.players
 WHERE CAST(market_value AS NUMERIC) >= 10000000;
@@ -27,6 +35,20 @@ SELECT sp.sponsor_id,
          ELSE 'Не указан'
        END AS sponsor_tier
 FROM football_club.sponsors AS sp;
+
+SELECT name FROM football_club.stadiums
+WHERE capacity BETWEEN 40000 AND 50000;
+
+SELECT name FROM football_club.league
+WHERE tier BETWEEN 1 AND 2;
+
+SELECT name FROM football_club.products
+WHERE name LIKE 'Ш%';
+
+SELECT name FROM football_club.products
+WHERE name LIKE '_____';
+
+SELECT DISTINCT name FROM football_club.products;
 
 SELECT c.club_id, c.name AS club_name, o.name AS owner_name, o.nationality AS owner_nationality
 FROM football_club.football_clubs AS c

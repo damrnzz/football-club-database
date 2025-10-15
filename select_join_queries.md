@@ -1,4 +1,25 @@
 ```
+SELECT * FROM football_club.players;
+```
+![01](requests/01.jpg)
+
+```
+SELECT * FROM football_club.football_clubs;
+```
+![01](requests/02.jpg)
+
+```
+SELECT first_name FROM football_club.players;
+```
+![01](requests/03.jpg)
+
+```
+SELECT capacity, name FROM football_club.stadiums;
+```
+![01](requests/04.jpg)
+
+
+```
 SELECT player_id, first_name
 FROM football_club.players
 WHERE CAST(market_value AS NUMERIC) >= 10000000;
@@ -43,6 +64,40 @@ FROM football_club.sponsors AS sp;
 ```
 
 ![asdas](requests/4.jpg)
+
+```
+SELECT name FROM football_club.stadiums
+WHERE capacity BETWEEN 40000 AND 50000;
+```
+
+![asdas](requests/05.jpg)
+
+```
+SELECT name FROM football_club.league
+WHERE tier BETWEEN 1 AND 2;
+```
+
+![asdas](requests/06.jpg)
+
+```
+SELECT name FROM football_club.products
+WHERE name LIKE 'Ш%';
+```
+
+![asdas](requests/07.jpg)
+
+```
+SELECT name FROM football_club.products
+WHERE name LIKE '_____';
+```
+![asdas](requests/08.jpg)
+
+```
+SELECT DISTINCT name FROM football_club.products;
+```
+
+![asdas](requests/09.jpg)
+
 
 ```
 SELECT c.club_id, c.name AS club_name, o.name AS owner_name, o.nationality AS owner_nationality
