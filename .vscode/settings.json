@@ -9,7 +9,7 @@
             "name": "postgres",
             "database": "postgres",
             "username": "postgres",
-            "password": ""
+            "password": "01102006"
         }
     ]
 }
