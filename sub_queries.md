@@ -1,7 +1,3 @@
-# Подзапросы в SQL (football_club)
-
-## Подзапросы в SELECT
-
 ### 1. Игроки и средняя зарплата по лиге
 ```sql
 SELECT first_name, salary, 
