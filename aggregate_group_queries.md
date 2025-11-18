@@ -14,7 +14,7 @@ GROUP BY country
 ORDER BY leagues_count DESC, country;
 ```
 
-![01](requests2/2.jpg)
+![01](requests3/2.jpg)
 
 ```sql
 -- SUM #1: суммарная вместимость всех стадионов
