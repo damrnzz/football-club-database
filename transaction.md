@@ -431,7 +431,47 @@ WHERE type = 'CategoryA';
 
 
 
+### Вариант 2: турниры tournament (INSERT в T2, T1 не видит новый турнир)
 
+```sql
+BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+SELECT tournament_id, name
+FROM football_club.tournament
+WHERE region = 'Europe';
+
+
+
+```
+### T2 (окно 2)
+```sql
+BEGIN TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+INSERT INTO football_club.tournament(name, region, format)
+VALUES ('Repeat Cup 3', 'Europe', 'League');
+
+COMMIT;
+
+
+
+```
+
+
+### T1 (окно 1)
+```sql
+SELECT tournament_id, name
+FROM football_club.tournament
+WHERE region = 'Europe';
+-- снова только первые 2 строки, нового турнира нет
+
+
+
+```
+
+###T1 не видит «фантомного» турнирa, вставленного T2, хотя он уже закоммичен: поведение REPEATABLE READ без фантомов.
+
+
+![01](requests/304.jpg)
 
 
 
