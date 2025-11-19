@@ -474,6 +474,69 @@ WHERE region = 'Europe';
 ![01](requests/304.jpg)
 
 
+### SERIALIZABLE
+## T1
+```sql
+BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
+SELECT sponsor_id, amount
+FROM football_club.sponsors
+WHERE sponsor_id = 9;
+
+
+UPDATE football_club.sponsors
+SET amount = amount + 200000::money
+WHERE sponsor_id = 9;
+
+
+```
+### T2 (окно 2)
+```sql
+BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
+SELECT sponsor_id, amount
+FROM football_club.sponsors
+WHERE sponsor_id = 9;
+
+
+UPDATE football_club.sponsors
+SET amount = amount + 300000::money
+WHERE sponsor_id = 9;
+
+
+```
+
+
+### T1 (окно 1)
+```sql
+COMMIT;  -- T1: проходит успешно
+
+```
+### T2 (окно 2)
+```sql
+COMMIT;  -- T2: ожидаем ERROR: could not serialize access due to concurrent update
+
+```
+
+### T2 (окно 2)
+```sql
+ROLLBACK;  -- откат неуспешной транзакции
+
+BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+UPDATE football_club.sponsors
+SET amount = amount + 300000::money
+WHERE sponsor_id = 50;
+COMMIT;  -- теперь успешно
+
+```
+
+
+
+
+![01](requests/310.jpg)
+![01](requests/311.jpg)
+![01](requests/312.jpg)
+
 
 
 
