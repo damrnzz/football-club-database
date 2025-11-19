@@ -302,6 +302,169 @@ COMMIT;
 ![01](requests/226.jpg)
 
 
+
+## REPEATABLE READ: T1 не видит изменения T2
+
+
+### T1 (окно 1)
+```sql
+BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+SELECT player_id, first_name, market_value
+FROM football_club.players
+WHERE first_name = 'Кевин';
+
+```
+### T2 (окно 2)
+```sql
+BEGIN TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+UPDATE football_club.players
+SET market_value = 5000000
+WHERE first_name = 'Кевин';
+
+COMMIT;
+
+
+```
+
+
+### T1 (окно 1)
+```sql
+BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+SELECT player_id, first_name, market_value
+FROM football_club.players
+WHERE first_name = 'Кевин';
+
+```
+
+## Оба запроса в T1 дают одно и то же значение, несмотря на UPDATE в T2: классическое поведение REPEATABLE READ
+
+
+![01](requests/301.jpg)
+
+
+## Вариант 2: спонсор sponsors (UPDATE в T2 не виден)
+
+
+### T1 (окно 1)
+```sql
+BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+SELECT sponsor_id, amount
+FROM football_club.sponsors
+WHERE type = 'МТС';
+
+
+```
+### T2 (окно 2)
+```sql
+BEGIN TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+UPDATE football_club.sponsors
+SET amount = 3000000
+WHERE type = 'МТС';
+
+COMMIT;
+
+```
+
+
+### T1 (окно 1)
+```sql
+BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+SELECT sponsor_id, amount
+FROM football_club.sponsors
+WHERE type = 'МТС';
+```
+
+### T1 второй раз видит те же данные, что и в первый раз, изменения T2 не попадают в его снимок.
+
+
+![01](requests/302.jpg)
+
+
+
+
+## REPEATABLE READ: «фантомное» чтение через INSERT в T2
+
+
+### Вариант 1: продукты products (INSERT в T2, T1 не видит новый товар) T1
+
+```sql
+BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+SELECT product_id, name, price
+FROM football_club.products
+WHERE type = 'CategoryA';
+
+```
+### T2 (окно 2)
+```sql
+BEGIN TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+INSERT INTO football_club.products(name, type, price, count, shop_id, height, width, length)
+VALUES ('Scarf R3', 'CategoryA', 30, 7, 1, 15, 6, 120);
+
+COMMIT;
+
+
+```
+
+
+### T1 (окно 1)
+```sql
+SELECT product_id, name, price
+FROM football_club.products
+WHERE type = 'CategoryA';
+
+```
+
+### Хотя в базе теперь 3 товара с CategoryA, T1 в пределах своей транзакции видит только те 2, которые были на момент первого чтения: фантомов нет
+
+
+![01](requests/303.jpg)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # изменение остаётся, вставка откатывается
 ```sql
 --  увеличиваем capacity, но откатываем фан-шоп после проверки
