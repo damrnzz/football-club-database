@@ -162,4 +162,189 @@ BEGIN
 END;
 $$;
 
-```
+
+
+-- IF: проверка, дорогой ли игрок
+CREATE OR REPLACE FUNCTION football_club.player_is_expensive(p_player_id INT)
+RETURNS TEXT AS $$
+DECLARE
+  v_val MONEY; 
+BEGIN
+  SELECT market_value INTO v_val
+  FROM football_club.players
+  WHERE player_id = p_player_id;
+
+  IF v_val > 5000000::money THEN          
+    RETURN 'expensive';
+  ELSE
+    RETURN 'normal';
+  END IF;
+END;
+$$ 
+
+
+-- CASE: категория стадиона по вместимости
+CREATE OR REPLACE FUNCTION football_club.stadium_size(p_stadium_id INT)
+RETURNS TEXT AS $$
+DECLARE
+  v_cap INT; 
+BEGIN
+  SELECT capacity INTO v_cap
+  FROM football_club.stadiums
+  WHERE stadium_id = p_stadium_id;
+
+  RETURN CASE                          
+    WHEN v_cap IS NULL  THEN 'unknown'
+    WHEN v_cap < 10000  THEN 'small'
+    WHEN v_cap <= 30000 THEN 'medium'
+    ELSE 'large'
+  END;
+END;
+$$ 
+
+ -- цикл WHILE
+CREATE OR REPLACE FUNCTION football_club.while_count_shops(p_club_id INT)
+RETURNS INT AS $$
+DECLARE
+  i INT := 1;   
+  max_id INT;       
+  cnt INT := 0;   
+BEGIN
+  SELECT COALESCE(MAX(shop_id), 0) INTO max_id
+  FROM football_club.fun_shop;
+
+  WHILE i <= max_id LOOP
+    IF EXISTS (
+      SELECT 1
+      FROM football_club.fun_shop
+      WHERE shop_id = i
+        AND club_id = p_club_id
+    ) THEN
+      cnt := cnt + 1;
+    END IF;
+
+    i := i + 1;
+  END LOOP;
+
+  RETURN cnt;
+END;
+$$ 
+
+
+
+-- WHILE №2: 
+CREATE OR REPLACE FUNCTION football_club.while_find_first_shop_by_address(
+    p_club_id INT,
+    p_address TEXT
+)
+RETURNS INT AS $$
+DECLARE
+  i      INT := 1;   
+  max_id INT;        
+BEGIN
+  SELECT COALESCE(MAX(shop_id), 0) INTO max_id
+  FROM football_club.fun_shop;
+
+  IF max_id = 0 THEN
+    RETURN 0;  
+  END IF;
+
+  WHILE i <= max_id LOOP
+    IF EXISTS (
+      SELECT 1
+      FROM football_club.fun_shop
+      WHERE shop_id = i
+        AND club_id = p_club_id
+        AND address = p_address
+    ) THEN
+      RETURN i; 
+    END IF;
+
+    i := i + 1;
+  END LOOP;
+
+  RETURN 0;  
+END;
+$$ 
+
+
+
+-- EXCEPTION №1: 
+CREATE OR REPLACE FUNCTION football_club.ex_check_player_club(p_player_id INT)
+RETURNS TEXT AS $$
+DECLARE
+  v_club_id INT;
+BEGIN
+  SELECT club_id
+  INTO v_club_id
+  FROM football_club.players
+  WHERE player_id = p_player_id;
+
+  IF v_club_id IS NULL THEN
+    RAISE EXCEPTION 'player % has no club', p_player_id;
+  END IF;
+
+  RETURN 'ok';
+END;
+$$ 
+
+
+
+
+-- EXCEPTION №2: 
+CREATE OR REPLACE FUNCTION football_club.ex_get_staff_salary(p_staff_id INT)
+RETURNS MONEY AS $$
+DECLARE
+  v_salary MONEY;
+BEGIN
+  BEGIN
+    SELECT salary INTO v_salary
+    FROM football_club.staff
+    WHERE staff_id = p_staff_id;
+
+    IF NOT FOUND THEN           
+      RAISE EXCEPTION 'staff % not found', p_staff_id;
+    END IF;
+  EXCEPTION
+    WHEN others THEN      
+      RAISE NOTICE 'error: %', SQLERRM;
+      RETURN NULL;
+  END;
+
+  RETURN v_salary;
+END;
+$$ 
+
+
+
+-- RAISE №1: логгер по игроку
+CREATE OR REPLACE FUNCTION football_club.debug_player(p_player_id INT)
+RETURNS VOID AS $$
+DECLARE
+  v_name TEXT;
+BEGIN
+  SELECT first_name INTO v_name
+  FROM football_club.players
+  WHERE player_id = p_player_id;
+
+  RAISE NOTICE 'Player id=%, name=%', p_player_id, v_name; 
+END;
+$$ 
+
+
+-- RAISE 2: EXCEPTION при отрицательной вместимости стадиона
+CREATE OR REPLACE FUNCTION football_club.trg_raise_negative_capacity()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.capacity < 0 THEN
+    RAISE EXCEPTION 'negative capacity for stadium %', NEW.stadium_id;
+  END IF;
+  RETURN NEW;
+END;
+$$ 
+
+CREATE TRIGGER trg_stadium_negative_capacity
+BEFORE INSERT OR UPDATE ON football_club.stadiums
+FOR EACH ROW
+EXECUTE FUNCTION football_club.trg_raise_negative_capacity();
+
