@@ -332,20 +332,18 @@ END;
 $$ 
 
 
--- RAISE 2: EXCEPTION при отрицательной вместимости стадиона
-CREATE OR REPLACE FUNCTION football_club.trg_raise_negative_capacity()
-RETURNS TRIGGER AS $$
-BEGIN
-  IF NEW.capacity < 0 THEN
-    RAISE EXCEPTION 'negative capacity for stadium %', NEW.stadium_id;
-  END IF;
-  RETURN NEW;
-END;
-$$ 
 
-CREATE TRIGGER trg_stadium_negative_capacity
-BEFORE INSERT OR UPDATE ON football_club.stadiums
-FOR EACH ROW
-EXECUTE FUNCTION football_club.trg_raise_negative_capacity();
+DO $$
+BEGIN
+  INSERT INTO football_club.fun_shop(address, club_id)
+  VALUES ('Москва', 1);
+
+EXCEPTION
+  WHEN unique_violation THEN
+    RAISE NOTICE 'Магазин с таким адресом для этого клуба уже существует';
+END $$;
+ 
+
+
 
 ```
