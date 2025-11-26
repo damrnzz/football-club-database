@@ -307,7 +307,7 @@ BEGIN
     END IF;
   EXCEPTION
     WHEN others THEN      
-      RAISE NOTICE 'error: %', SQLERRM;
+      RAISE NOTICE 'error: %';
       RETURN NULL;
   END;
 
@@ -348,3 +348,4 @@ BEFORE INSERT OR UPDATE ON football_club.stadiums
 FOR EACH ROW
 EXECUTE FUNCTION football_club.trg_raise_negative_capacity();
 
+```
