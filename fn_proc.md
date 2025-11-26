@@ -210,7 +210,7 @@ DECLARE
   max_id INT;       
   cnt INT := 0;   
 BEGIN
-  SELECT COALESCE(MAX(shop_id), 0) INTO max_id
+  SELECT MAX(shop_id) INTO max_id
   FROM football_club.fun_shop;
 
   WHILE i <= max_id LOOP
@@ -242,7 +242,7 @@ DECLARE
   i      INT := 1;   
   max_id INT;        
 BEGIN
-  SELECT COALESCE(MAX(shop_id), 0) INTO max_id
+  SELECT MAX(shop_id) INTO max_id
   FROM football_club.fun_shop;
 
   IF max_id = 0 THEN
