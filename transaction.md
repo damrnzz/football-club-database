@@ -9,7 +9,7 @@ BEGIN;
 INSERT INTO football_club.players(first_name, date_of_birth, nationality, position, market_value, club_id)
 VALUES ('Johnnn', '1985-05-12', 'Russia', 'Defender', 65000000, 1);
 
--- 3) Обновляем клуб — например, меняем имя
+-- 3) Обновляем клуб 
 UPDATE football_club.football_clubs
 SET name = 'FC Renamed 2'
 WHERE club_id = 1;
@@ -32,7 +32,7 @@ BEGIN;
 INSERT INTO football_club.products(name, type, price, count, shop_id, height, width, length)
 VALUES ('Scarf', 'Merch', 25, 100, 1, 10, 5, 100);
 
--- 3) Обновляем фан-шоп, например меняем адрес
+-- 3) Обновляем фан-шоп
 UPDATE football_club.fun_shop
 SET address = 'Main street 2'
 WHERE shop_id = 1;

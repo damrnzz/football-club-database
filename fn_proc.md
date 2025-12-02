@@ -10,6 +10,8 @@ BEGIN
     WHERE staduim_id = p_stadium_id;
 END;
 $$;
+![01](fn_proc/1.png)
+![01](fn_proc/2.png)
 
 -- 2: добавить фан-шоп 
 CREATE OR REPLACE PROCEDURE add_fun_shop(p_address TEXT, p_club_id INT)
@@ -22,6 +24,7 @@ BEGIN
     WHERE fc.club_id = p_club_id;
 END;
 $$;
+![01](fn_proc/3.png)
 
 -- 3: удалить спонсора по id
 CREATE OR REPLACE PROCEDURE delete_sponsor(p_sponsor_id INT)
@@ -32,6 +35,8 @@ BEGIN
 END;
 $$;
 ```
+![01](fn_proc/11.png)
+![01](fn_proc/12.png)
 
 ![01](savepoint/111.jpg)
 
@@ -46,7 +51,9 @@ AS $$
     FROM football_club.sponsors
     WHERE club_id = p_club_id;
 $$;
-
+```
+![01](fn_proc/4.png)
+```sql
 -- 2: количество игроков клуба
 CREATE OR REPLACE FUNCTION club_players_count(p_club_id INT)
 RETURNS INT
@@ -54,7 +61,9 @@ LANGUAGE sql
 AS $$
     SELECT COUNT(*) FROM football_club.players WHERE club_id = p_club_id;
 $$;
-
+```
+![01](fn_proc/5.png)
+```sql
 -- 3: средняя зарплата по клубу
 CREATE OR REPLACE FUNCTION club_avg_salary(p_club_id INT)
 RETURNS INT
@@ -65,8 +74,9 @@ AS $$
     JOIN football_club.players p ON p.player_id = c.player_id
     WHERE p.club_id = p_club_id;
 $$;
-
-
+```
+![01](fn_proc/6.png)
+```sql
 --4: сумма + количество по спонсорам клуба
 CREATE OR REPLACE FUNCTION club_sponsor_report(p_club_id INT)
 RETURNS TEXT
@@ -85,7 +95,9 @@ BEGIN
     RETURN 'Спонсоров: ' || count ||', сумма: ' || total;
 END;
 $$;
-
+```
+![01](fn_proc/7.png)
+```sql
 -- 5: дата окончания последнего контракта игрока
 CREATE OR REPLACE FUNCTION player_last_contract_end(p_player_name TEXT)
 RETURNS DATE
@@ -101,7 +113,9 @@ BEGIN
     RETURN con_end;
 END;
 $$;
-
+```
+![01](fn_proc/8.png)
+```sql
 -- 6:класс вместимости стадиона
 CREATE OR REPLACE FUNCTION capacity_class(p_stadium_name TEXT)
 RETURNS TEXT
@@ -126,6 +140,7 @@ BEGIN
 END;
 $$;
 ```
+![01](fn_proc/9.png)
 
 ![01](savepoint/222.jpg)
 
@@ -161,9 +176,10 @@ BEGIN
     RAISE NOTICE 'Общая сумма спонсорских: %', total;
 END;
 $$;
+```
+![01](fn_proc/101.png)
 
-
-
+```sql
 -- IF: проверка, дорогой ли игрок
 CREATE OR REPLACE FUNCTION football_club.player_is_expensive(p_player_id INT)
 RETURNS TEXT AS $$
@@ -338,7 +354,7 @@ BEGIN
   INSERT INTO football_club.fun_shop(address, club_id)
   VALUES ('Москва', 1);
 
-EXCEPTION
+  EXCEPTION
   WHEN unique_violation THEN
     RAISE NOTICE 'Магазин с таким адресом для этого клуба уже существует';
 END $$;

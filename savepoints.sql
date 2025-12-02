@@ -101,3 +101,49 @@ BEGIN;
     WHERE name = 'Нева Парк' OR name = 'Сантьяго Виста' ; 
 
 COMMIT; -- финально изменений нет
+
+
+
+
+
+-- единый спонсор-счёт
+INSERT INTO football_club.sponsors(club_id, start_date, end_date, amount, type)
+VALUES (1, '2024-01-01', '2025-01-01', 1000000::money, 'Serializable balance');
+
+
+SELECT sponsor_id, amount
+FROM football_club.sponsors
+WHERE type = 'Serializable balance';
+
+BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
+SELECT sponsor_id, amount
+FROM football_club.sponsors
+WHERE sponsor_id = 50;
+-- 1 000 000
+
+BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
+SELECT sponsor_id, amount
+FROM football_club.sponsors
+WHERE sponsor_id = 50;
+-- тоже 1 000 000
+
+
+UPDATE football_club.sponsors
+SET amount = amount + 200000::money
+WHERE sponsor_id = 50;
+
+
+
+UPDATE football_club.sponsors
+SET amount = amount + 300000::money
+WHERE sponsor_id = 50;
+
+
+
+COMMIT;
+-- обычно проходит нормально
+
+
+COMMIT;
