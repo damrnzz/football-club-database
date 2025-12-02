@@ -10,9 +10,10 @@ BEGIN
     WHERE staduim_id = p_stadium_id;
 END;
 $$;
+```
 ![01](fn_proc/1.png)
 ![01](fn_proc/2.png)
-
+```sql
 -- 2: добавить фан-шоп 
 CREATE OR REPLACE PROCEDURE add_fun_shop(p_address TEXT, p_club_id INT)
 LANGUAGE plpgsql
@@ -24,8 +25,9 @@ BEGIN
     WHERE fc.club_id = p_club_id;
 END;
 $$;
+```
 ![01](fn_proc/3.png)
-
+```sql
 -- 3: удалить спонсора по id
 CREATE OR REPLACE PROCEDURE delete_sponsor(p_sponsor_id INT)
 LANGUAGE plpgsql
@@ -182,6 +184,7 @@ $$;
 ```sql
 -- IF: проверка, дорогой ли игрок
 CREATE OR REPLACE FUNCTION football_club.player_is_expensive(p_player_id INT)
+LANGUAGE plpgsql
 RETURNS TEXT AS $$
 DECLARE
   v_val MONEY; 
@@ -197,11 +200,15 @@ BEGIN
   END IF;
 END;
 $$ 
+SELECT football_club.player_is_expensive(1);
 
-
+```
+![01](savepoint/730.jpg)
+```sql
 -- CASE: категория стадиона по вместимости
 CREATE OR REPLACE FUNCTION football_club.stadium_size(p_stadium_id INT)
-RETURNS TEXT AS $$
+RETURNS TEXT LANGUAGE plpgsql 
+AS $$
 DECLARE
   v_cap INT; 
 BEGIN
@@ -217,10 +224,15 @@ BEGIN
   END;
 END;
 $$ 
+SELECT football_club.stadium_size(1);
 
+```
+![01](savepoint/731.jpg)
+```sql
  -- цикл WHILE
 CREATE OR REPLACE FUNCTION football_club.while_count_shops(p_club_id INT)
-RETURNS INT AS $$
+RETURNS INT LANGUAGE plpgsql 
+AS $$
 DECLARE
   i INT := 1;   
   max_id INT;       
@@ -245,7 +257,16 @@ BEGIN
   RETURN cnt;
 END;
 $$ 
+SELECT shop_id, address, club_id
+FROM football_club.fun_shop
+WHERE club_id = 1
+ORDER BY shop_id;
+SELECT football_club.while_count_shops(1);
 
+```
+![01](savepoint/732.jpg)
+![01](savepoint/733.jpg)
+```sql
 
 
 -- WHILE №2: 
@@ -253,7 +274,8 @@ CREATE OR REPLACE FUNCTION football_club.while_find_first_shop_by_address(
     p_club_id INT,
     p_address TEXT
 )
-RETURNS INT AS $$
+RETURNS INT LANGUAGE plpgsql
+ AS $$
 DECLARE
   i      INT := 1;   
   max_id INT;        
@@ -282,12 +304,20 @@ BEGIN
   RETURN 0;  
 END;
 $$ 
+SELECT shop_id, address, club_id
+FROM football_club.fun_shop
+WHERE club_id = 1
+ORDER BY shop_id;
+SELECT football_club.while_find_first_shop_by_address(1, 'Main street 2');
 
-
+```
+![01](savepoint/734.jpg)
+```sql
 
 -- EXCEPTION №1: 
 CREATE OR REPLACE FUNCTION football_club.ex_check_player_club(p_player_id INT)
-RETURNS TEXT AS $$
+RETURNS TEXT LANGUAGE plpgsql 
+AS $$
 DECLARE
   v_club_id INT;
 BEGIN
@@ -303,13 +333,31 @@ BEGIN
   RETURN 'ok';
 END;
 $$ 
+SELECT player_id, club_id
+FROM football_club.players
+WHERE player_id = 1;
+
+SELECT football_club.ex_check_player_club(1);
+
+UPDATE football_club.players
+SET club_id = NULL
+WHERE player_id = 2;
+
+SELECT football_club.ex_check_player_club(2);
 
 
+
+
+```
+![01](savepoint/736.jpg)
+![01](savepoint/737.jpg)
+```sql
 
 
 -- EXCEPTION №2: 
 CREATE OR REPLACE FUNCTION football_club.ex_get_staff_salary(p_staff_id INT)
-RETURNS MONEY AS $$
+RETURNS MONEY LANGUAGE plpgsql
+AS $$
 DECLARE
   v_salary MONEY;
 BEGIN
@@ -319,23 +367,35 @@ BEGIN
     WHERE staff_id = p_staff_id;
 
     IF NOT FOUND THEN           
-      RAISE EXCEPTION 'staff % not found', p_staff_id;
+      RAISE EXCEPTION 'staff not found';
     END IF;
   EXCEPTION
     WHEN others THEN      
-      RAISE NOTICE 'error: %';
+      RAISE NOTICE 'error';
       RETURN NULL;
   END;
 
   RETURN v_salary;
 END;
 $$ 
+SELECT staff_id, salary
+FROM football_club.staff
+LIMIT 3;
 
+SELECT football_club.ex_get_staff_salary(1);
+SELECT football_club.ex_get_staff_salary(9999);
+
+
+```
+![01](savepoint/738.jpg)
+![01](savepoint/739.jpg)
+```sql
 
 
 -- RAISE №1: логгер по игроку
 CREATE OR REPLACE FUNCTION football_club.debug_player(p_player_id INT)
-RETURNS VOID AS $$
+RETURNS VOID LANGUAGE plpgsql
+AS $$
 DECLARE
   v_name TEXT;
 BEGIN
@@ -346,20 +406,33 @@ BEGIN
   RAISE NOTICE 'Player id=%, name=%', p_player_id, v_name; 
 END;
 $$ 
+SELECT football_club.debug_player(1);
 
+```
 
+![01](savepoint/740.jpg)
+![01](savepoint/741.jpg)
 
-DO $$
+```sql
+CREATE OR REPLACE FUNCTION football_club.debug_club(p_club_id INT)
+RETURNS VOID
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  v_name  TEXT;
+  v_city  INT;
 BEGIN
-  INSERT INTO football_club.fun_shop(address, club_id)
-  VALUES ('Москва', 1);
+  SELECT name, city_id
+  INTO v_name, v_city
+  FROM football_club.football_clubs
+  WHERE club_id = p_club_id;
 
-  EXCEPTION
-  WHEN unique_violation THEN
-    RAISE NOTICE 'Магазин с таким адресом для этого клуба уже существует';
-END $$;
- 
-
+  RAISE NOTICE 'Club id=%, name=%, city_id=%',
+               p_club_id, v_name, v_city;
+END;
+$$;
+SELECT football_club.debug_club(1);
 
 
 ```
+![01](savepoint/742.jpg)
