@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: pg_football
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Damirka704fgh
+      POSTGRES_DB: football_club_db3
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+
+  flyway:
+    image: flyway/flyway
+    depends_on:
+      - postgres
+    command: ["migrate"]
+    volumes:
+      - ./migrations:/flyway/sql
+    environment:
+      FLYWAY_URL: jdbc:postgresql://postgres:5432/football_club_db3
+      FLYWAY_USER: postgres
+      FLYWAY_PASSWORD: Damirka704fgh
+      FLYWAY_SCHEMAS: football_club
+      FLYWAY_BASELINE_ON_MIGRATE: "true"
+      FLYWAY_BASELINE_VERSION: "0"
+
+volumes:
+  pgdata:
